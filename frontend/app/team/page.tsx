@@ -17,7 +17,9 @@ export default function TeamPage() {
   const [joinNickname, setJoinNickname] = useState("");
 
   const [createdInviteCode, setCreatedInviteCode] = useState("");
+  const [createdTeamId, setCreatedTeamId] = useState("");
   const [joinedTeamName, setJoinedTeamName] = useState("");
+  const [joinedTeamId, setJoinedTeamId] = useState("");
   const [joinError, setJoinError] = useState("");
   const [createError, setCreateError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,27 +52,45 @@ export default function TeamPage() {
 
       const { data: team, error: teamError } = await supabase
         .from("teams")
-        .insert({ name: teamName })
+        .insert({ name: teamName.trim() })
         .select()
         .single();
 
-      if (teamError) throw teamError;
+      if (teamError) {
+        setCreateError(teamError.message);
+        return;
+      }
+      if (!team) {
+        setCreateError("팀 정보를 불러오지 못했어요. 다시 시도해 주세요.");
+        return;
+      }
 
       const { error: memberError } = await supabase
         .from("members")
         .insert({
           team_id: team.id,
           user_id: user.id,
-          nickname: nickname,
+          nickname: nickname.trim(),
         });
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        setCreateError(memberError.message);
+        return;
+      }
 
       setCreatedInviteCode(team.invite_code);
+      setCreatedTeamId(team.id);
       setSection("created");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "팀 생성에 실패했어요.";
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" &&
+              err !== null &&
+              "message" in err &&
+              typeof (err as { message: unknown }).message === "string"
+            ? (err as { message: string }).message
+            : "팀 생성에 실패했어요.";
       setCreateError(message);
     } finally {
       setIsSubmitting(false);
@@ -92,11 +112,12 @@ export default function TeamPage() {
         return;
       }
 
-      const { data: team, error: findError } = await supabase
-        .from("teams")
-        .select("id, name")
-        .ilike("invite_code", inviteCodeInput.trim())
-        .single();
+      const { data: teamRows, error: findError } = await supabase.rpc(
+        "get_team_for_invite",
+        { p_invite: inviteCodeInput.trim() },
+      );
+
+      const team = teamRows?.[0];
 
       if (findError || !team) {
         setJoinError("유효하지 않은 초대 코드예요. 다시 확인해 주세요.");
@@ -120,12 +141,13 @@ export default function TeamPage() {
         .insert({
           team_id: team.id,
           user_id: user.id,
-          nickname: joinNickname,
+          nickname: joinNickname.trim(),
         });
 
       if (memberError) throw memberError;
 
       setJoinedTeamName(team.name);
+      setJoinedTeamId(team.id);
       setSection("joined");
     } catch (err: unknown) {
       const message =
@@ -157,12 +179,22 @@ export default function TeamPage() {
             </p>
           </div>
 
-          <Link
-            href="/"
-            className="mt-8 inline-block w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-          >
-            홈으로 돌아가기
-          </Link>
+          <div className="mt-8 flex flex-col gap-2">
+            {createdTeamId && (
+              <Link
+                href={`/team/${createdTeamId}`}
+                className="inline-block w-full rounded-lg bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-gray-800"
+              >
+                팀 페이지 (코드·팀원)
+              </Link>
+            )}
+            <Link
+              href="/"
+              className="inline-block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              홈으로
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -183,12 +215,22 @@ export default function TeamPage() {
             팀에 합류했습니다
           </p>
 
-          <Link
-            href="/"
-            className="mt-8 inline-block w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800"
-          >
-            홈으로 돌아가기
-          </Link>
+          <div className="mt-8 flex flex-col gap-2">
+            {joinedTeamId && (
+              <Link
+                href={`/team/${joinedTeamId}`}
+                className="inline-block w-full rounded-lg bg-gray-900 px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-gray-800"
+              >
+                팀 페이지 보기
+              </Link>
+            )}
+            <Link
+              href="/"
+              className="inline-block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              홈으로
+            </Link>
+          </div>
         </div>
       </div>
     );

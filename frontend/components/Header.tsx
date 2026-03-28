@@ -11,7 +11,7 @@ const navLinks = [
   { href: "/history", label: "이력" },
 ];
 
-const authRoutes = ["/login", "/signup"];
+const hideHeaderRoutes = ["/login", "/signup", "/welcome"];
 
 export default function Header() {
   const pathname = usePathname();
@@ -21,11 +21,10 @@ export default function Header() {
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
+    window.location.assign("/login");
   };
 
-  if (authRoutes.includes(pathname)) return null;
+  if (hideHeaderRoutes.includes(pathname)) return null;
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur">

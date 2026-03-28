@@ -1,37 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { loginAction } from "@/app/auth/actions";
+import type { AuthFormState } from "@/app/auth/types";
+
+const initialState: AuthFormState = {};
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/");
-    router.refresh();
-  };
+  const [state, formAction, pending] = useActionState(loginAction, initialState);
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -43,13 +20,13 @@ export default function LoginPage() {
           오늘 뭐 먹지? 에 오신 걸 환영해요
         </p>
 
-        {error && (
+        {state.error && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+            {state.error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div>
             <label
               htmlFor="email"
@@ -59,10 +36,10 @@ export default function LoginPage() {
             </label>
             <input
               id="email"
+              name="email"
               type="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               placeholder="you@example.com"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
@@ -77,10 +54,10 @@ export default function LoginPage() {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               placeholder="••••••••"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
@@ -88,10 +65,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={pending}
             className="w-full rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "로그인 중…" : "로그인"}
+            {pending ? "로그인 중…" : "로그인"}
           </button>
         </form>
 
@@ -102,6 +79,15 @@ export default function LoginPage() {
             className="font-medium text-gray-900 underline-offset-4 hover:underline"
           >
             회원가입
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-sm">
+          <Link
+            href="/welcome"
+            className="text-gray-500 underline-offset-4 hover:text-gray-800 hover:underline"
+          >
+            로그인 없이 서비스 소개 보기
           </Link>
         </p>
       </div>
