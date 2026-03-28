@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import InviteCodeBlock from "@/components/InviteCodeBlock";
+import TeamDangerZone from "@/components/TeamDangerZone";
 
 interface PageProps {
   params: Promise<{ teamId: string }>;
@@ -36,7 +37,7 @@ export default async function TeamDetailPage({ params }: PageProps) {
 
   const { data: team, error: teamError } = await supabase
     .from("teams")
-    .select("id, name, invite_code, created_at, is_public")
+    .select("id, name, invite_code, created_at, is_public, created_by")
     .eq("id", teamId)
     .single();
 
@@ -127,6 +128,12 @@ export default async function TeamDetailPage({ params }: PageProps) {
           다른 팀 참여
         </Link>
       </div>
+
+      <TeamDangerZone
+        teamId={team.id}
+        teamName={team.name}
+        isCreator={team.created_by === user.id}
+      />
     </div>
   );
 }

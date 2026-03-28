@@ -11,6 +11,7 @@ export interface PublicTeamListItem {
   id: string;
   name: string;
   memberCount: number;
+  joined?: boolean;
 }
 
 export default function PublicTeamJoinCard({
@@ -31,6 +32,22 @@ export default function PublicTeamJoinCard({
       router.refresh();
     }
   }, [state.ok, router]);
+
+  if (team.joined) {
+    return (
+      <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="min-w-0">
+          <p className="font-semibold text-gray-900">{team.name}</p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {team.memberCount}명 참여 중
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+          참여중
+        </span>
+      </div>
+    );
+  }
 
   return (
     <form

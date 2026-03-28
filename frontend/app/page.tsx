@@ -202,11 +202,9 @@ export default async function Home() {
     .order("created_at", { ascending: false })
     .limit(40);
 
-  const publicCandidates = (publicTeamsRaw ?? []).filter(
-    (t) => !myTeamIdSet.has(t.id),
-  );
+  const allPublicTeams = publicTeamsRaw ?? [];
 
-  const publicTeamIds = publicCandidates.map((t) => t.id);
+  const publicTeamIds = allPublicTeams.map((t) => t.id);
   const publicMemberCounts: Record<string, number> = {};
   if (publicTeamIds.length > 0) {
     const { data: pubMembers } = await supabase
@@ -219,11 +217,12 @@ export default async function Home() {
     }
   }
 
-  const publicTeamsForHome: PublicTeamListItem[] = publicCandidates.map(
+  const publicTeamsForHome: PublicTeamListItem[] = allPublicTeams.map(
     (t) => ({
       id: t.id,
       name: t.name,
       memberCount: publicMemberCounts[t.id] ?? 0,
+      joined: myTeamIdSet.has(t.id),
     }),
   );
 
