@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/", label: "홈" },
   { href: "/vote", label: "투표" },
   { href: "/history", label: "이력" },
+  { href: "/dormitory-menu", label: "생활관 식단" },
 ];
 
 const hideHeaderRoutes = ["/login", "/signup", "/welcome"];
