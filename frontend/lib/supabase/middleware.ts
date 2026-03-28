@@ -5,7 +5,7 @@ import { getSupabaseAnonKey, getSupabaseUrl } from "./env";
 /** Logged-in users are sent home from these paths */
 const AUTH_FORM_ROUTES = ["/login", "/signup"];
 /** Guests may open these without signing in */
-const GUEST_ALLOWED_ROUTES = ["/login", "/signup", "/welcome"];
+const GUEST_ALLOWED_ROUTES = ["/login", "/signup", "/welcome", "/dormitory-menu"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });

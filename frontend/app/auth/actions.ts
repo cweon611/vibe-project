@@ -5,16 +5,20 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { AuthFormState } from "./types";
 
+const EMAIL_NOT_CONFIRMED_TAG = "__EMAIL_NOT_CONFIRMED__";
+
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
   if (m.includes("email not confirmed") || m.includes("confirm your email"))
-    return "이메일 인증이 필요해요. 받은 메일의 링크를 눌러 주세요.";
+    return EMAIL_NOT_CONFIRMED_TAG;
   if (m.includes("invalid login credentials"))
     return "이메일 또는 비밀번호가 올바르지 않아요.";
   if (m.includes("user already registered"))
     return "이미 가입된 이메일이에요. 로그인해 주세요.";
   return message;
 }
+
+export { EMAIL_NOT_CONFIRMED_TAG };
 
 export async function loginAction(
   _prev: AuthFormState | undefined,
@@ -71,7 +75,8 @@ export async function signupAction(
 
   if (!data.session) {
     return {
-      info: "입력하신 이메일로 인증 링크를 보냈어요. 메일의 링크로 가입을 완료한 뒤 로그인해 주세요.",
+      info: "이메일 인증이 필요합니다.",
+      email,
     };
   }
 

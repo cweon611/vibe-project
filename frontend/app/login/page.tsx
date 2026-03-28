@@ -2,13 +2,47 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { loginAction } from "@/app/auth/actions";
+import { loginAction, EMAIL_NOT_CONFIRMED_TAG } from "@/app/auth/actions";
 import type { AuthFormState } from "@/app/auth/types";
 
 const initialState: AuthFormState = {};
 
+function EmailNotConfirmedBanner() {
+  return (
+    <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+      <div className="flex items-start gap-3">
+        <svg
+          className="mt-0.5 h-5 w-5 shrink-0 text-amber-600"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+          />
+        </svg>
+        <div>
+          <p className="font-semibold">이메일 인증이 완료되지 않았어요</p>
+          <p className="mt-1 text-amber-800">
+            가입 시 입력한 이메일의 받은편지함(스팸함 포함)에서 인증 링크를
+            클릭한 뒤 다시 로그인해 주세요.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LoginPage() {
-  const [state, formAction, pending] = useActionState(loginAction, initialState);
+  const [state, formAction, pending] = useActionState(
+    loginAction,
+    initialState,
+  );
+
+  const isEmailNotConfirmed = state.error === EMAIL_NOT_CONFIRMED_TAG;
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
@@ -20,7 +54,9 @@ export default function LoginPage() {
           오늘 뭐 먹지? 에 오신 걸 환영해요
         </p>
 
-        {state.error && (
+        {isEmailNotConfirmed && <EmailNotConfirmedBanner />}
+
+        {state.error && !isEmailNotConfirmed && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {state.error}
           </div>
