@@ -243,7 +243,25 @@ export default async function Home() {
       />
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-gray-900">내가 속한 팀</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-sm font-semibold text-gray-900">내가 속한 팀</h2>
+          {hasTeams && (
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/team"
+                className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-800"
+              >
+                새 팀 만들기
+              </Link>
+              <Link
+                href="/team"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                초대 코드로 참여
+              </Link>
+            </div>
+          )}
+        </div>
         {hasTeams ? (
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {myTeams.map((team) => (
