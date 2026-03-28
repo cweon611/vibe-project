@@ -7,29 +7,35 @@ interface PublicTeamRow {
 }
 
 export default async function WelcomePage() {
-  const supabase = await createClient();
-
-  const { data: publicTeamsRaw } = await supabase
-    .from("teams")
-    .select("id, name, created_at")
-    .eq("is_public", true)
-    .order("created_at", { ascending: false })
-    .limit(20);
-
-  const publicTeams: PublicTeamRow[] = publicTeamsRaw ?? [];
-
-  const teamIds = publicTeams.map((t) => t.id);
+  let publicTeams: PublicTeamRow[] = [];
   const memberCounts: Record<string, number> = {};
 
-  if (teamIds.length > 0) {
-    const { data: members } = await supabase
-      .from("members")
-      .select("team_id")
-      .in("team_id", teamIds);
+  try {
+    const supabase = await createClient();
 
-    for (const m of members ?? []) {
-      memberCounts[m.team_id] = (memberCounts[m.team_id] ?? 0) + 1;
+    const { data: publicTeamsRaw } = await supabase
+      .from("teams")
+      .select("id, name, created_at")
+      .eq("is_public", true)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    publicTeams = (publicTeamsRaw ?? []) as PublicTeamRow[];
+
+    const teamIds = publicTeams.map((t) => t.id);
+
+    if (teamIds.length > 0) {
+      const { data: members } = await supabase
+        .from("members")
+        .select("team_id")
+        .in("team_id", teamIds);
+
+      for (const m of members ?? []) {
+        memberCounts[m.team_id] = (memberCounts[m.team_id] ?? 0) + 1;
+      }
     }
+  } catch (e) {
+    console.error("[Welcome] data fetch error:", e);
   }
 
   return (

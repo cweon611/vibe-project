@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PublicTeamsSection from "@/components/PublicTeamsSection";
 import type { PublicTeamListItem } from "@/components/PublicTeamJoinCard";
@@ -149,11 +150,12 @@ function EmptyState() {
 
 export default async function Home() {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const { data: myMemberships } = await supabase
     .from("members")
