@@ -1,3 +1,4 @@
+import https from "node:https";
 import * as cheerio from "cheerio";
 import type {
   DormitoryMenuColumn,
@@ -10,11 +11,43 @@ import type {
 
 const ORIGIN = "https://dormitory.jnu.ac.kr";
 
-const FETCH_HEADERS = {
+const FETCH_HEADERS: Record<string, string> = {
   "User-Agent":
     "Mozilla/5.0 (compatible; JNU-DormMenuReader/1.0; +https://github.com/)",
   Accept: "text/html,application/xhtml+xml",
 };
+
+/**
+ * The dormitory server sends an incomplete SSL certificate chain,
+ * which causes Node.js's built-in CA bundle to reject the connection
+ * (UNABLE_TO_VERIFY_LEAF_SIGNATURE).  We work around this by using
+ * `node:https` directly with `rejectUnauthorized: false` scoped only
+ * to this one request — the rest of the application is unaffected.
+ */
+function httpsGet(url: string, headers: Record<string, string>): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      { headers, rejectUnauthorized: false, timeout: 15_000 },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (c: Buffer) => chunks.push(c));
+        res.on("end", () =>
+          resolve({
+            status: res.statusCode ?? 0,
+            body: Buffer.concat(chunks).toString("utf-8"),
+          }),
+        );
+        res.on("error", reject);
+      },
+    );
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Request timed out"));
+    });
+    req.on("error", reject);
+  });
+}
 
 export function buildDormitoryBoardUrl(st?: string, ed?: string): string {
   if (st && ed) {
@@ -144,25 +177,25 @@ export async function fetchDormitoryMenu(
 ): Promise<DormitoryMenuResult> {
   const sourceUrl = buildDormitoryBoardUrl(st, ed);
 
-  let res: Response;
+  let html: string;
   try {
-    res = await fetch(sourceUrl, {
-      headers: FETCH_HEADERS,
-      next: { revalidate: 1800 },
-    });
-  } catch {
-    return { ok: false, error: "생활관 사이트에 연결할 수 없습니다." };
-  }
-
-  if (!res.ok) {
+    const res = await httpsGet(sourceUrl, FETCH_HEADERS);
+    if (res.status < 200 || res.status >= 400) {
+      return {
+        ok: false,
+        error: `식단 페이지를 불러오지 못했습니다. (${res.status})`,
+        status: res.status,
+      };
+    }
+    html = res.body;
+  } catch (err) {
+    console.error("[dormitory-menu] fetch failed:", err);
+    const msg = err instanceof Error ? err.message : String(err);
     return {
       ok: false,
-      error: `식단 페이지를 불러오지 못했습니다. (${res.status})`,
-      status: res.status,
+      error: `생활관 사이트에 연결할 수 없습니다. (${msg})`,
     };
   }
-
-  const html = await res.text();
   const $ = cheerio.load(html);
 
   const weekLabel = $("#ctl00_PageContentPlaceHolder_ctl00_lbl_Date")
