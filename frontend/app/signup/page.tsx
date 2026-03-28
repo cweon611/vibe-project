@@ -176,7 +176,7 @@ export default function SignupPage() {
             href="/welcome"
             className="text-gray-500 underline-offset-4 hover:text-gray-800 hover:underline"
           >
-            로그인 없이 서비스 소개 보기
+            로그인 없이 둘러보기
           </Link>
         </p>
       </div>

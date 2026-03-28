@@ -18,7 +18,7 @@ const navLinks: NavItem[] = [
   { href: "/dormitory-menu", label: "생활관 식단" },
 ];
 
-const hideHeaderRoutes = ["/login", "/signup", "/welcome"];
+const hideHeaderRoutes = ["/login", "/signup"];
 
 export default function Header() {
   const pathname = usePathname();
