@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { loginAction, EMAIL_NOT_CONFIRMED_TAG } from "@/app/auth/actions";
+import { loginAction } from "@/app/auth/actions";
+import { EMAIL_NOT_CONFIRMED_TAG } from "@/app/auth/types";
 import type { AuthFormState } from "@/app/auth/types";
 
 const initialState: AuthFormState = {};

@@ -3,9 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { EMAIL_NOT_CONFIRMED_TAG } from "./types";
 import type { AuthFormState } from "./types";
-
-const EMAIL_NOT_CONFIRMED_TAG = "__EMAIL_NOT_CONFIRMED__";
 
 function mapAuthError(message: string): string {
   const m = message.toLowerCase();
@@ -17,8 +16,6 @@ function mapAuthError(message: string): string {
     return "이미 가입된 이메일이에요. 로그인해 주세요.";
   return message;
 }
-
-export { EMAIL_NOT_CONFIRMED_TAG };
 
 export async function loginAction(
   _prev: AuthFormState | undefined,
