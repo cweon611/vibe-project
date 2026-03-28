@@ -21,9 +21,7 @@ function missingMessage(primary: string, fallbacks: string[]): string {
   const names = [primary, ...fallbacks].join(" or ");
   return (
     `[Supabase] ${names} is missing or empty. ` +
-    `Create or edit frontend/.env.local (see frontend/.env.example). ` +
-    `Restart dev after editing env. From repo root: npm run dev. ` +
-    `Values: ${API_SETTINGS}`
+    `Create or edit frontend/.env.local. Restart dev. ${API_SETTINGS}`
   );
 }
 

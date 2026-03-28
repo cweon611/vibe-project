@@ -29,10 +29,6 @@ export default function WelcomePage() {
             회원가입
           </Link>
         </div>
-
-        <p className="mt-10 text-xs text-gray-400">
-          이미 계정이 있으면 로그인 후 홈으로 이동합니다.
-        </p>
       </div>
     </div>
   );

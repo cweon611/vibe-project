@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import PublicTeamsSection from "@/components/PublicTeamsSection";
+import type { PublicTeamListItem } from "@/components/PublicTeamJoinCard";
 
 type VoteStatus = "open" | "closed" | "none";
 
@@ -125,7 +127,7 @@ function EmptyState() {
         아직 팀이 없어요
       </h2>
       <p className="mt-1 text-sm text-gray-500">
-        팀을 만들거나, 초대 코드로 참여해 보세요!
+        아래 공개 팀에 참여하거나, 팀을 만들고 초대 코드로도 참여할 수 있어요.
       </p>
       <div className="mt-6 flex gap-3">
         <Link
@@ -191,6 +193,43 @@ export default async function Home() {
 
   const hasTeams = myTeams.length > 0;
 
+  const myTeamIdSet = new Set(teamIds);
+
+  const { data: publicTeamsRaw } = await supabase
+    .from("teams")
+    .select("id, name, created_at")
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .limit(40);
+
+  const publicCandidates = (publicTeamsRaw ?? []).filter(
+    (t) => !myTeamIdSet.has(t.id),
+  );
+
+  const publicTeamIds = publicCandidates.map((t) => t.id);
+  const publicMemberCounts: Record<string, number> = {};
+  if (publicTeamIds.length > 0) {
+    const { data: pubMembers } = await supabase
+      .from("members")
+      .select("team_id")
+      .in("team_id", publicTeamIds);
+
+    for (const m of pubMembers ?? []) {
+      publicMemberCounts[m.team_id] = (publicMemberCounts[m.team_id] ?? 0) + 1;
+    }
+  }
+
+  const publicTeamsForHome: PublicTeamListItem[] = publicCandidates.map(
+    (t) => ({
+      id: t.id,
+      name: t.name,
+      memberCount: publicMemberCounts[t.id] ?? 0,
+    }),
+  );
+
+  const defaultJoinNickname =
+    (user.user_metadata?.nickname as string | undefined) ?? "";
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900">내 팀</h1>
@@ -198,9 +237,15 @@ export default async function Home() {
         오늘의 점심, 팀과 함께 정해요
       </p>
 
+      <PublicTeamsSection
+        teams={publicTeamsForHome}
+        defaultNickname={defaultJoinNickname}
+      />
+
       <section className="mt-6">
+        <h2 className="text-sm font-semibold text-gray-900">내가 속한 팀</h2>
         {hasTeams ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
             {myTeams.map((team) => (
               <TeamCard
                 key={team.id}
@@ -211,7 +256,9 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <EmptyState />
+          <div className="mt-3">
+            <EmptyState />
+          </div>
         )}
       </section>
     </div>

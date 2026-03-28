@@ -3,6 +3,8 @@ export interface Team {
   name: string;
   invite_code: string;
   created_at: string;
+  /** 홈 공개 참여 목록에 노출 */
+  is_public?: boolean;
 }
 
 export interface Member {

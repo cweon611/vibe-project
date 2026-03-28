@@ -1,9 +1,6 @@
 /**
- * Fallback Supabase URL + anon key when process.env is empty in Edge middleware
- * or other runtimes (known issue with some Next.js / Turbopack setups).
- *
- * The anon key is public by design; row-level security protects your data.
- * Override with frontend/.env.local for a different Supabase project.
+ * Fallback when process.env is empty in Edge middleware / Turbopack.
+ * Override with frontend/.env.local for another project. Anon key is public; use RLS.
  */
 export const EMBEDDED_SUPABASE_URL =
   "https://hdrqwmjplbhsdfxkjcqa.supabase.co";

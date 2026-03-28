@@ -36,7 +36,7 @@ export default async function TeamDetailPage({ params }: PageProps) {
 
   const { data: team, error: teamError } = await supabase
     .from("teams")
-    .select("id, name, invite_code, created_at")
+    .select("id, name, invite_code, created_at, is_public")
     .eq("id", teamId)
     .single();
 
@@ -50,6 +50,10 @@ export default async function TeamDetailPage({ params }: PageProps) {
     .eq("team_id", teamId)
     .order("joined_at", { ascending: true });
 
+  const isPublic = Boolean(
+    team.is_public as boolean | null | undefined,
+  );
+
   return (
     <div className="mx-auto max-w-lg px-4 py-8">
       <Link
@@ -59,7 +63,14 @@ export default async function TeamDetailPage({ params }: PageProps) {
         ← 홈
       </Link>
 
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">{team.name}</h1>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900">{team.name}</h1>
+        {isPublic && (
+          <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+            공개 참여 팀
+          </span>
+        )}
+      </div>
       <p className="mt-1 text-sm text-gray-500">
         팀원이면 언제든지 이 페이지에서 초대 코드를 다시 볼 수 있어요.
       </p>
@@ -70,14 +81,14 @@ export default async function TeamDetailPage({ params }: PageProps) {
 
       <div className="mt-6 rounded-lg border border-amber-100 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
         <strong className="font-semibold">닉네임으로 친구 초대</strong>는 계정
-        검색·초대장 기능이 필요해서 아직 넣지 않았어요. 지금은 위 코드를
-        카톡·슬랙 등으로 공유해 주세요.
+        검색 기능이 필요해 아직 없어요. 초대 코드를 공유하거나, 공개 팀이면
+        홈에서 바로 참여할 수 있어요.
       </div>
 
       <section className="mt-8">
         <h2 className="text-sm font-semibold text-gray-900">팀원</h2>
         <p className="mt-1 text-xs text-gray-500">
-          팀 안에서 쓰는 닉네임이에요 (로그인 이메일과는 별개)
+          팀 안에서 쓰는 닉네임이에요
         </p>
         <ul className="mt-3 divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
           {(teammates ?? []).map((m) => (

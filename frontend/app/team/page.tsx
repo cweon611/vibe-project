@@ -23,6 +23,7 @@ export default function TeamPage() {
   const [joinError, setJoinError] = useState("");
   const [createError, setCreateError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPublicTeam, setIsPublicTeam] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -52,7 +53,7 @@ export default function TeamPage() {
 
       const { data: team, error: teamError } = await supabase
         .from("teams")
-        .insert({ name: teamName.trim() })
+        .insert({ name: teamName.trim(), is_public: isPublicTeam })
         .select()
         .single();
 
@@ -292,6 +293,21 @@ export default function TeamPage() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
             />
           </div>
+
+          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50/80 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={isPublicTeam}
+              onChange={(e) => setIsPublicTeam(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+            />
+            <span>
+              <span className="font-medium text-gray-900">공개 팀으로 홈에 노출</span>
+              <span className="mt-0.5 block text-xs text-gray-500">
+                켜면 누구나 초대 코드 없이 홈에서 이 팀에 참여할 수 있어요.
+              </span>
+            </span>
+          </label>
 
           <button
             type="submit"
