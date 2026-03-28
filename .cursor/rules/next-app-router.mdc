@@ -1,0 +1,18 @@
+---
+description: Next.js App Router 라우팅·메타데이터·권장 API
+globs: "app/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Next.js App Router
+
+## 반드시 (DO)
+
+- 페이지·레이아웃·로딩·에러 UI는 **`app/`** 아래에 둔다.
+- 새 라우트는 **`page.tsx`**, 공통 UI는 **`layout.tsx`** 등 App Router 관례를 따른다.
+- 상황에 맞게 **`next/image`**, **`next/link`**, 메타데이터 API(**`metadata`** / **`generateMetadata`**)를 사용한다.
+- API·서버 로직이 필요하면 **`route.ts`**(Route Handlers)를 고려한다.
+
+## 하지 말 것 (DON'T)
+
+- **Pages Router와 섞지 않는다.** `pages/`에 새 기능을 추가하지 않으며, 레거시가 없다면 `pages/` 디렉터리를 새로 만들지 않는다.

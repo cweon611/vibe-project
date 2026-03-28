@@ -1,0 +1,19 @@
+---
+description: Supabase 클라이언트·환경 변수·보안(RLS·키 노출 금지)
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# 데이터베이스·백엔드 (Supabase)
+
+## 반드시 (DO)
+
+- DB·인증 등 백엔드 연동은 **Supabase 공식 클라이언트/SDK** 패턴으로 맞춘다.
+- URL·anon key 등은 **`NEXT_PUBLIC_SUPABASE_URL`**, **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** 등 프로젝트가 쓰는 환경 변수 이름을 따른다.
+- **스키마·RLS(행 수준 보안)** 정책을 존중하고, 클라이언트에서 허용된 권한만 가정한다.
+- 비밀값은 **`.env.local`** 등 설정 파일로 분리하고, 코드에 하드코딩하지 않는다.
+
+## 하지 말 것 (DON'T)
+
+- Supabase를 **다른 DB 클라이언트·ORM으로 임의 대체하지 않는다.** (요구사항 변경 전까지 Supabase 유지.)
+- **서비스 롤 키·관리자용 비밀키**를 브라우저·클라이언트 번들에 노출하는 코드를 작성하지 않는다.

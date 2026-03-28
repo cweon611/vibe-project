@@ -1,0 +1,17 @@
+---
+description: 프로젝트 전역 스택·우선순위·AGENTS.md 연동
+alwaysApply: true
+---
+
+# 프로젝트 핵심 (전역)
+
+이 저장소는 **Next.js App Router**, **TypeScript**, **Tailwind CSS**, **Supabase**를 표준으로 한다.
+
+## 우선순위
+
+1. 사용자의 **최신·명시적 지시**가 다른 문서보다 우선한다.
+2. 세부 도구 설정은 저장소의 `package.json`, `tsconfig.json`, `tailwind.config.*`, `AGENTS.md`를 따른다.
+
+## 한 줄 요약
+
+Next.js App Router + TypeScript + Tailwind + Supabase. 역할별 규칙(`.cursor/rules/*.mdc`)과 `AGENTS.md`의 DO/DON'T를 함께 따른다.

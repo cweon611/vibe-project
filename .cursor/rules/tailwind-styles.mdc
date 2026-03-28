@@ -1,0 +1,16 @@
+---
+description: Tailwind CSS 단일 스타일 체계
+globs: "**/*.{tsx,css}"
+alwaysApply: false
+---
+
+# 스타일 (Tailwind CSS)
+
+## 반드시 (DO)
+
+- UI 스타일은 **Tailwind 유틸리티 클래스**로 맞춘다.
+- 간격·색·타이포 등은 프로젝트에 있는 **Tailwind 설정·디자인 토큰**과 일관되게 사용한다.
+
+## 하지 말 것 (DON'T)
+
+- **CSS-in-JS**, **CSS Modules**, **styled-components** 등으로 스타일 방식을 **새로 병행·도입하지 않는다.** (이 프로젝트는 Tailwind를 단일 스택으로 유지한다.)
