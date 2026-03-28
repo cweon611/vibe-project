@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { fetchDormitoryMenu } from "@/lib/dormitory-menu/fetch-menu";
-import type { DormitoryMenuPayload } from "@/lib/dormitory-menu/types";
+import type {
+  DormitoryMenuPayload,
+  DormitoryMenuNav,
+} from "@/lib/dormitory-menu/types";
 
 export const metadata: Metadata = {
   title: "생활관 주간 식단",
@@ -11,35 +14,31 @@ export const metadata: Metadata = {
 const OFFICIAL_MENU_URL =
   "https://dormitory.jnu.ac.kr/Board/Board.aspx?BoardID=2";
 
-function WeekNav({
-  data,
-}: {
-  data: DormitoryMenuPayload;
-}) {
+function WeekNav({ nav }: { nav: DormitoryMenuNav }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-      {data.prevWeek ? (
+      {nav.prevWeek ? (
         <Link
-          href={`/dormitory-menu?st=${encodeURIComponent(data.prevWeek.st)}&ed=${encodeURIComponent(data.prevWeek.ed)}`}
+          href={`/dormitory-menu?st=${encodeURIComponent(nav.prevWeek.st)}&ed=${encodeURIComponent(nav.prevWeek.ed)}`}
           className="inline-flex min-w-0 flex-1 items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 sm:flex-none"
         >
           <span aria-hidden>←</span>
-          <span className="truncate">{data.prevWeek.label}</span>
+          <span className="truncate">{nav.prevWeek.label}</span>
         </Link>
       ) : (
         <span className="flex-1 sm:flex-none" />
       )}
 
       <p className="order-first w-full text-center text-base font-semibold text-gray-900 sm:order-none sm:w-auto">
-        {data.weekLabel}
+        {nav.weekLabel}
       </p>
 
-      {data.nextWeek ? (
+      {nav.nextWeek ? (
         <Link
-          href={`/dormitory-menu?st=${encodeURIComponent(data.nextWeek.st)}&ed=${encodeURIComponent(data.nextWeek.ed)}`}
+          href={`/dormitory-menu?st=${encodeURIComponent(nav.nextWeek.st)}&ed=${encodeURIComponent(nav.nextWeek.ed)}`}
           className="inline-flex min-w-0 flex-1 items-center justify-end gap-2 text-right text-sm font-medium text-gray-600 transition-colors hover:text-gray-900 sm:flex-none"
         >
-          <span className="truncate">{data.nextWeek.label}</span>
+          <span className="truncate">{nav.nextWeek.label}</span>
           <span aria-hidden>→</span>
         </Link>
       ) : (
@@ -192,25 +191,35 @@ export default async function DormitoryMenuPage({
       </div>
 
       {!result.ok ? (
-        <div
-          className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-6 text-amber-950"
-          role="alert"
-        >
-          <p className="font-medium">{result.error}</p>
-          <p className="mt-3 text-sm">
-            <a
-              href={OFFICIAL_MENU_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-emerald-800 underline"
-            >
-              공식 식단 페이지에서 직접 확인하기
-            </a>
-          </p>
+        <div className="space-y-6">
+          {result.nav && <WeekNav nav={result.nav} />}
+
+          <div
+            className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-6 text-amber-950"
+            role="alert"
+          >
+            <p className="font-medium">{result.error}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Link
+                href="/dormitory-menu"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-800"
+              >
+                <span aria-hidden>←</span> 이번 주 식단 보기
+              </Link>
+              <a
+                href={OFFICIAL_MENU_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-emerald-800 underline underline-offset-2"
+              >
+                공식 페이지에서 직접 확인
+              </a>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="space-y-10">
-          <WeekNav data={result.data} />
+          <WeekNav nav={result.data} />
           <MealTimeSection data={result.data} />
           {result.data.legendText ? (
             <p className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-xs leading-relaxed text-gray-600 sm:text-sm">

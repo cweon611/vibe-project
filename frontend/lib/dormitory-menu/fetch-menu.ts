@@ -204,6 +204,7 @@ export async function fetchDormitoryMenu(
 
   const prevWeek = parseWeekNav($, $("a.week-prev").first());
   const nextWeek = parseWeekNav($, $("a.week-next").first());
+  const nav = { weekLabel, prevWeek, nextWeek };
 
   const legendText = $(".menuplan > .pt-1.pb-1").first().text().replace(/\s+/g, " ").trim();
 
@@ -211,7 +212,8 @@ export async function fetchDormitoryMenu(
   if (!table.length) {
     return {
       ok: false,
-      error: "식단표 형식을 인식하지 못했습니다. 원문 사이트를 확인해 주세요.",
+      error: "해당 주차에 등록된 식단이 없습니다.",
+      nav,
     };
   }
 
@@ -219,7 +221,8 @@ export async function fetchDormitoryMenu(
   if (!parsed) {
     return {
       ok: false,
-      error: "식단표 데이터를 읽을 수 없습니다.",
+      error: "해당 주차에 등록된 식단이 없습니다.",
+      nav,
     };
   }
 

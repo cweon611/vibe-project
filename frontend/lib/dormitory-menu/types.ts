@@ -34,6 +34,12 @@ export interface DormitoryMenuPayload {
   sourceUrl: string;
 }
 
+export interface DormitoryMenuNav {
+  weekLabel: string;
+  prevWeek: DormitoryWeekNav | null;
+  nextWeek: DormitoryWeekNav | null;
+}
+
 export type DormitoryMenuResult =
   | { ok: true; data: DormitoryMenuPayload }
-  | { ok: false; error: string; status?: number };
+  | { ok: false; error: string; status?: number; nav?: DormitoryMenuNav };
